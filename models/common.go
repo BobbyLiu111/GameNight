@@ -25,11 +25,10 @@ type CreateRoomResponse struct {
 	Room    *Room  `json:"room"`
 }
 
-// JoinRoomReq 加入房间请求
-type JoinRoomReq struct {
-	PlayerName string `json:"player_name" binding:"required,min=1,max=20" label:"玩家昵称"`
-	Password   string `json:"password,omitempty" label:"房间密码"`
-	Position   int    `json:"position,omitempty" binding:"omitempty,min=1" label:"指定位置"`
+// JoinRoomRequest 加入房间请求
+type JoinRoomRequest struct {
+	PlayerName string `json:"player_name"`
+	RoomID     string `json:"room_id"`
 }
 
 // StartGameReq 开始游戏请求

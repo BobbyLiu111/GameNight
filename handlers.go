@@ -72,7 +72,7 @@ func CreateRoom(c *gin.Context) {
 		GameID:   selectedGame.ID,
 		GameName: selectedGame.Name,
 		Players: []models.Player{
-			{ID: models.GeneratePlayerID(), Nickname: req.Creator},
+			{Nickname: req.Creator},
 		},
 		Status:  "waiting",
 		MaxSize: maxSize,
@@ -85,18 +85,14 @@ func CreateRoom(c *gin.Context) {
 
 // JoinRoom 加入房间
 func JoinRoom(c *gin.Context) {
-	roomID := c.Param("id")
-
-	var req struct {
-		PlayerName string `json:"player_name" binding:"required"`
-	}
+	req := models.JoinRoomRequest{}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	room, exists := models.Rooms[roomID]
+	room, exists := models.Rooms[req.RoomID]
 	if !exists {
 		c.JSON(http.StatusNotFound, gin.H{"error": "房间不存在"})
 		return
@@ -112,17 +108,16 @@ func JoinRoom(c *gin.Context) {
 		return
 	}
 
-	// 检查玩家是否已在房间内
+	// 判断昵称是否重复
 	for _, player := range room.Players {
 		if player.Nickname == req.PlayerName {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "玩家已在房间内"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "昵称不可用"})
 			return
 		}
 	}
 
 	// 添加玩家
 	newPlayer := models.Player{
-		ID:       models.GeneratePlayerID(),
 		Nickname: req.PlayerName,
 	}
 	room.Players = append(room.Players, newPlayer)

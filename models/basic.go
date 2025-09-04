@@ -22,7 +22,6 @@ type Room struct {
 
 // Player 玩家结构
 type Player struct {
-	ID       string `json:"id"`
 	Nickname string `json:"nickname"`
 	Role     string `json:"role,omitempty"`   // 角色
 	Status   string `json:"status,omitempty"` // 状态
