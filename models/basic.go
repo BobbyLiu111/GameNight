@@ -1,6 +1,6 @@
 package models
 
-// 游戏基础结构
+// Game 游戏基础结构
 type Game struct {
 	ID          int    `json:"id"`
 	Name        string `json:"name"`
@@ -10,7 +10,7 @@ type Game struct {
 	Category    string `json:"category"`
 }
 
-// 房间结构
+// Room 房间结构
 type Room struct {
 	ID       string   `json:"id"`
 	GameID   int      `json:"game_id"`
@@ -20,13 +20,13 @@ type Room struct {
 	MaxSize  int      `json:"max_size"`
 }
 
-// 玩家结构
+// Player 玩家结构
 type Player struct {
 	ID       string `json:"id"`
 	Nickname string `json:"nickname"`
-	Role     string `json:"role,omitempty"`   // 角色（如果游戏需要）
-	Status   string `json:"status,omitempty"` // 状态（如果游戏需要）
-	Score    int    `json:"score,omitempty"`  // 分数（如果游戏需要）
+	Role     string `json:"role,omitempty"`   // 角色
+	Status   string `json:"status,omitempty"` // 状态
+	Score    int    `json:"score,omitempty"`  // 分数
 }
 
 // 全局数据存储
@@ -35,7 +35,7 @@ var (
 	Rooms = make(map[string]*Room)
 )
 
-// 初始化数据
+// InitData 初始化数据
 func InitData() {
 	Games = []Game{
 		{ID: 1, Name: "狼人杀", Description: "经典推理游戏", MinPlayers: 6, MaxPlayers: 20, Category: "推理"},
@@ -45,7 +45,7 @@ func InitData() {
 	}
 }
 
-// 根据ID查找游戏
+// GetGameByID 根据ID查找游戏
 func GetGameByID(id int) *Game {
 	for i, game := range Games {
 		if game.ID == id {
@@ -55,12 +55,7 @@ func GetGameByID(id int) *Game {
 	return nil
 }
 
-// 生成房间ID
-func GenerateRoomID() string {
-	return "room_" + string(rune(len(Rooms)+65))
-}
-
-// 生成玩家ID
+// GeneratePlayerID 生成玩家ID
 func GeneratePlayerID() string {
 	return "player_" + string(rune(len(Rooms)*10+65))
 }

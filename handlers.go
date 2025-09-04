@@ -7,67 +7,61 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Welcome 欢迎页面
 func Welcome(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"message": "欢迎来到 Game Night 聚会桌游！",
-		"version": "1.0.0",
+	c.JSON(http.StatusOK, models.WelcomeResponse{
+		Message: "Welcome to Game Night!",
+		Version: "v1.0.0",
 	})
 }
 
 // GetGames 获取所有游戏
 func GetGames(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"games": models.Games,
+	c.JSON(http.StatusOK, models.GetGamesResponse{
+		Games: models.Games,
 	})
 }
 
-// GetGame 获取特定游戏信息
-func GetGame(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"message": "欢迎来到 PartyBoard 聚会桌游！",
-		"version": "1.0.0",
-	})
-}
-
-// GetRooms 获取所有房间
-func GetRooms(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"message": "欢迎来到 PartyBoard 聚会桌游！",
-		"version": "1.0.0",
-	})
-}
-
-// GetRoom 获取特定房间信息
-func GetRoom(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"message": "欢迎来到 PartyBoard 聚会桌游！",
-		"version": "1.0.0",
-	})
+// GetRoomByID 获取房间
+func GetRoomByID(c *gin.Context) {
+	roomID := c.Param("id")
+	room := models.Rooms[roomID]
+	if room == nil {
+		c.JSON(http.StatusNotFound, models.GetRoomByIDResponse{Room: nil, Message: "未找到房间"})
+		return
+	}
+	c.JSON(http.StatusOK, models.GetRoomByIDResponse{
+		Room:    room,
+		Message: "Let's Game Night!",
+	},
+	)
 }
 
 // CreateRoom 创建房间
 func CreateRoom(c *gin.Context) {
-	var req struct {
-		GameID  int    `json:"game_id" binding:"required"`
-		MaxSize int    `json:"max_size"`
-		Creator string `json:"creator" binding:"required"`
-	}
+	req := models.CreateRoomRequest{}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
+	roomID := req.RoomID
+	//判断房间是否存在
+	if models.Rooms[roomID] != nil {
+		c.JSON(http.StatusCreated, models.CreateRoomResponse{
+			Message: "房间号已存在",
+		})
+		return
+	}
 	// 查找游戏
 	selectedGame := models.GetGameByID(req.GameID)
 	if selectedGame == nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "游戏不存在"})
+		c.JSON(http.StatusBadRequest, models.CreateRoomResponse{
+			Message: "游戏不存在",
+		})
 		return
 	}
 
 	// 创建房间
-	roomID := models.GenerateRoomID()
 	maxSize := req.MaxSize
 	if maxSize == 0 {
 		maxSize = selectedGame.MaxPlayers
@@ -86,7 +80,7 @@ func CreateRoom(c *gin.Context) {
 
 	models.Rooms[roomID] = room
 
-	c.JSON(http.StatusCreated, room)
+	c.JSON(http.StatusCreated, models.CreateRoomResponse{Message: "创建成功", Room: room})
 }
 
 // JoinRoom 加入房间
