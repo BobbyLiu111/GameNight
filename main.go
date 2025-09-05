@@ -13,7 +13,7 @@ func main() {
 	models.InitData()
 	// 基础路由
 	r.GET("/", Welcome)
-
+	r.POST("/ws", SendWebsocketMessage)
 	// 游戏相关路由
 	gameGroup := r.Group("/games")
 	{
@@ -26,6 +26,11 @@ func main() {
 		roomGroup.GET("/:id", GetRoomByID)
 		roomGroup.POST("/", CreateRoom)
 		roomGroup.POST("/:id/join", JoinRoom)
+	}
+	// 玩家操作相关路由
+	playerGroup := r.Group("/players")
+	{
+		playerGroup.POST("/play-card", PlayCard)
 	}
 	/*	testGroup := r.Group("/test")
 		{

@@ -16,7 +16,7 @@ type Room struct {
 	GameID   int      `json:"game_id"`
 	GameName string   `json:"game_name"`
 	Players  []Player `json:"players"`
-	Status   string   `json:"status"` // waiting, playing, finished
+	Status   int      `json:"status"`
 	MaxSize  int      `json:"max_size"`
 }
 

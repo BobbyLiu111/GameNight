@@ -1,6 +1,7 @@
 package main
 
 import (
+	"game-night/constant"
 	"game-night/models"
 	"net/http"
 
@@ -74,7 +75,7 @@ func CreateRoom(c *gin.Context) {
 		Players: []models.Player{
 			{Nickname: req.Creator},
 		},
-		Status:  "waiting",
+		Status:  constant.RoomStatusWaiting,
 		MaxSize: maxSize,
 	}
 
@@ -103,7 +104,7 @@ func JoinRoom(c *gin.Context) {
 		return
 	}
 
-	if room.Status != "waiting" {
+	if room.Status != constant.RoomStatusWaiting {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "游戏已开始"})
 		return
 	}
@@ -122,5 +123,20 @@ func JoinRoom(c *gin.Context) {
 	}
 	room.Players = append(room.Players, newPlayer)
 
-	c.JSON(http.StatusOK, room)
+	c.JSON(http.StatusOK, models.JoinRoomResponse{
+		PlayerName: newPlayer.Nickname,
+		RoomID:     room.ID,
+	})
+}
+
+func PlayCard(c *gin.Context) {
+
+}
+
+func SendWebsocketMessage(c *gin.Context) {
+	msg := models.WebsocketMessage{}
+	if err := c.ShouldBindJSON(&msg); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 }
